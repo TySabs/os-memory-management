@@ -20,7 +20,12 @@
 
     public:
       MemoryBlock();
-      void Hello();
+      MemoryBlock(int, int);
+      MemoryBlock(int, string, string);
+      void printBlockInfo();
+
+      int getSize();
+      void setSize(int);
   };
 
 #endif
