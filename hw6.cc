@@ -15,10 +15,11 @@ using std::endl;
 using std::list;
 using std::ifstream;
 
+
 const int HOWOFTEN = 1;
 const int ONE_MB = 1024 * 1024;
 
-void printAvailableBlocks(list<MemoryBlock> availableBlocks) {
+void printAvailableBlocks(list<MemoryBlock> &availableBlocks) {
   cerr << "List of available blocks" << endl;
 
   int totalSize = 0;
@@ -30,18 +31,63 @@ void printAvailableBlocks(list<MemoryBlock> availableBlocks) {
   cerr << "Total size of the list = " << totalSize << endl << endl;
 }
 
-void allocateMemory(list<MemoryBlock> &availableBlocks, MemoryBlock processBlock) {
+void printBlocksInUse(list<MemoryBlock> &inUseBlocks) {
+  cerr << "List of blocks in use" << endl;
+  int totalSize = 0;
+
+  if (inUseBlocks.size() <= 0) {
+    cerr << "(none)" << endl;
+  } else {
+    for (MemoryBlock mb : inUseBlocks) {
+      mb.printUsageInfo();
+      totalSize += mb.getSize();
+    }
+  }
+
+  cerr << "Total Size of the list = " << totalSize << endl << endl;
+
+}
+
+void allocateMemory(list<MemoryBlock> &availableBlocks, MemoryBlock &processBlock) {
+  processBlock.printProcessInfo();
 
   list<MemoryBlock>::iterator it;
   for (it = availableBlocks.begin(); it != availableBlocks.end(); it++) {
     if (processBlock.getSize() < it->getSize()) {
       cerr << "Found a block of size " << it->getSize() << endl;
+      processBlock.setStartAddress(it->getStartAddress());
+
       int newSize = it->getSize() - processBlock.getSize();
       it->setSize(newSize);
+
+
+      int newAddress = it->getStartAddress() + processBlock.getSize();
+      it->setStartAddress(newAddress);
       cerr << "Success in allocating a block" << endl << endl;
       break;
     }
   }
+}
+
+void deallocateMemory(list<MemoryBlock> &availableBlocks, MemoryBlock &terminateBlock) {
+  list<MemoryBlock>::iterator it;
+  int blockOffset = terminateBlock.getStartAddress() + terminateBlock.getSize();
+  for (it = availableBlocks.begin(); it != availableBlocks.end(); it++) {
+    // int iAddress = it->getStartAddress() - terminateBlock.getSize();
+    if (it->getStartAddress() == blockOffset) {
+
+      cerr << "Merging two blocks at " << terminateBlock.getStartAddress() << " and "
+            << it->getStartAddress() << endl;
+
+      it->setStartAddress(blockOffset);
+      int newSize = it->getSize() + terminateBlock.getSize();
+      it->setSize(newSize);
+
+      break;
+    }
+  }
+
+  cerr << endl;
 }
 
 
@@ -109,26 +155,52 @@ int main(int argc, char *argv[]) {
     cerr << "Simulation of Memory Management using the First-Fit algorithm" << endl << endl;
     cerr << "Beginning of the run" << endl << endl;
     printAvailableBlocks(Avail);
+    printBlocksInUse(InUse);
+
+    int foo = 0;
 
     char transactionType;
-    string pid, bid;
+    string pid, bid, endLine;
     int pSize;
+    MemoryBlock newBlock;
+
     infile >> transactionType;
 
-    if (transactionType == 'L') {
-      infile >> pid;
-      infile >> pSize;
-      infile >> bid;
+    while (infile && foo < 3) {
 
-      cerr << "Transaction: request to load process " << pid << ", block ID " << bid
-            << " using " << pSize << " bytes" << endl << endl;
+      switch (transactionType) {
+        case 'L':
+          infile >> pid;
+          infile >> pSize;
+          infile >> bid;
 
-      MemoryBlock newBlock = MemoryBlock(pSize, pid, bid);
+          newBlock = MemoryBlock(pSize, pid, bid);
 
-      allocateMemory(Avail, newBlock);
-      printAvailableBlocks(Avail);
+          allocateMemory(Avail, newBlock);
+          InUse.push_back(newBlock);
+          printAvailableBlocks(Avail);
+          printBlocksInUse(InUse);
+          break;
+        case 'T':
+          infile >> pid;
 
-    }
+          cerr << "Transaction: request to terminate process " << pid << endl;
+
+          for (MemoryBlock mb : InUse) {
+            if (pid == mb.getProcessId()) {
+              deallocateMemory(Avail, mb);
+            }
+          }
+
+          break;
+
+        default:
+          cerr << "Unhandled Char" << endl;
+      } // end switch
+
+      foo++;
+      infile >> transactionType;
+    } // end while loop
 
   } else {
     cerr << "Error! invalid argument" << endl;

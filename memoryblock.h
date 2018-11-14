@@ -13,7 +13,7 @@
 
   class MemoryBlock {
     private:
-      int startingAddress;
+      int startAddress;
       int size;
       string processId;
       string blockId;
@@ -23,9 +23,16 @@
       MemoryBlock(int, int);
       MemoryBlock(int, string, string);
       void printBlockInfo();
+      void printUsageInfo();
+      void printProcessInfo();
 
       int getSize();
       void setSize(int);
+
+      int getStartAddress();
+      void setStartAddress(int);
+
+      string getProcessId();
   };
 
 #endif
