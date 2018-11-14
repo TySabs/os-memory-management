@@ -6,10 +6,12 @@
  ***********************************************************************/
 
 #include <iostream>
+#include <fstream>
 #include "memoryblock.h"
 
 using std::cerr;
 using std::endl;
+using std::ifstream;
 
 const int HOWOFTEN = 1;
 
@@ -20,12 +22,25 @@ const int HOWOFTEN = 1;
 *
 ***********************************************************************/
 int main(int argc, char *argv[]) {
-  cerr << "Hello World!" << endl;
 
-  cerr << "Simulation of Memory Management using the Best-Fit algorithm" << endl;
+  if (*argv[1] == 'B') {
+    cerr << "B detected" << endl;
+  } else if (*argv[1] == 'F') {
+    cerr << "F detected" << endl;
+  } else {
+    cerr << "Error! invalid argument" << endl;
+    exit(-1);
+  }
 
-  MemoryBlock *b = new MemoryBlock();
-  b->Hello();
+  // Open the file
+  ifstream infile;
+  infile.open("./data6.txt");
+
+  // Error check for file open error
+  if (!infile) {
+    cerr << "Unable to open file data6.txt";
+    exit(1);
+  }
 
   return 0;
 }
