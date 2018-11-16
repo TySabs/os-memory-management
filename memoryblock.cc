@@ -16,6 +16,16 @@ using std::endl;
 /***********************************************************************
  * MemoryBlock constructor
  *
+ * Arguments(0):
+ *
+ * Use: Creates a null memory block
+ ***********************************************************************/
+MemoryBlock::MemoryBlock() {}
+
+
+/***********************************************************************
+ * MemoryBlock constructor
+ *
  * Arguments(2):
  *   1. address - starting address
  *   2. _size - size of the block

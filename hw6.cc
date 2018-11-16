@@ -150,7 +150,7 @@ void deallocateMemory(list<MemoryBlock> &availableBlocks, MemoryBlock &terminate
         it->setStartAddress(it2->getStartAddress());
         it->setSize(newSize);
 
-        availableBlocks.erase(it);
+        availableBlocks.erase(it2);
       } // end if less than 4MB
     } // end if matched
 
