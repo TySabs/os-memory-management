@@ -15,7 +15,6 @@ using std::endl;
 using std::list;
 using std::ifstream;
 
-
 const int HOWOFTEN = 1;
 const int ONE_MB = 1024 * 1024;
 
@@ -45,7 +44,6 @@ void printBlocksInUse(list<MemoryBlock> &inUseBlocks) {
   }
 
   cerr << "Total Size of the list = " << totalSize << endl << endl;
-
 }
 
 void allocateMemory(list<MemoryBlock> &availableBlocks, MemoryBlock &processBlock) {
@@ -73,7 +71,6 @@ void deallocateMemory(list<MemoryBlock> &availableBlocks, MemoryBlock &terminate
   list<MemoryBlock>::iterator it;
   int blockOffset = terminateBlock.getStartAddress() + terminateBlock.getSize();
   for (it = availableBlocks.begin(); it != availableBlocks.end(); it++) {
-    // int iAddress = it->getStartAddress() - terminateBlock.getSize();
     if (it->getStartAddress() == blockOffset) {
 
       cerr << "Merging two blocks at " << terminateBlock.getStartAddress() << " and "
@@ -167,6 +164,8 @@ int main(int argc, char *argv[]) {
     infile >> transactionType;
 
     while (infile && foo < 3) {
+      list<MemoryBlock>::iterator removeIterator;
+
 
       switch (transactionType) {
         case 'L':
@@ -186,9 +185,12 @@ int main(int argc, char *argv[]) {
 
           cerr << "Transaction: request to terminate process " << pid << endl;
 
-          for (MemoryBlock mb : InUse) {
-            if (pid == mb.getProcessId()) {
-              deallocateMemory(Avail, mb);
+          for (removeIterator = InUse.begin(); removeIterator != InUse.end(); removeIterator++) {
+            if (pid == removeIterator->getProcessId()) {
+              deallocateMemory(Avail, *removeIterator);
+              InUse.erase(removeIterator);
+              cerr << "Success in terminating a process" << endl << endl;
+              break;
             }
           }
 
